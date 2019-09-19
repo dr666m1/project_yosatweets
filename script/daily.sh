@@ -1,5 +1,5 @@
 #!/bin/bash
-chdir $(dirname $0)
+cd $(dirname $0)
 if [ $(date '+%w') -eq 1 ]; then
     rm ./../data/last_week.db
     mv ./../data/this_week.db ./../data/last_week.db
