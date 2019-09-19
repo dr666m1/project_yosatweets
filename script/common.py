@@ -4,6 +4,7 @@ import contextlib
 import sqlite3
 import json
 import pandas as pd
+import re
 
 #===== session =====
 def make_sess():
@@ -18,7 +19,6 @@ def make_sess():
 def make_conn(path):
     conn=contextlib.closing(sqlite3.connect(path))
     return conn
-
 
 #===== search =====
 def search_tweets(query,since_id):
@@ -46,6 +46,20 @@ def search_tweets(query,since_id):
     #data_df["created_at"]=(pd.to_datetime(data_df["created_at"]) + pd.offsets.Hour(9)).dt.strftime("%Y-%m-%d %H:%M:%S")
     return data_df
 
+#===== dictionary =====
+def apply_convert_dic(text):
+    with open("./../dic/convert_dic.json","r") as file:
+        dic=json.load(file)
+    for f,t in dic["replace"].items():
+        text=text.replace(f,t)
+    for f,t in dic["reg-replace"].items():
+        text=re.sub(f,t,text)
+    return text
+
+def read_ignore_dic():
+    with open("./../dic/ignore_dic.json","r") as file:
+        dic=json.load(file)["ignore_words"]
+    return dic
 
 #===== tweet =====
 def tweet(text,img=None):
@@ -68,5 +82,4 @@ def tweet(text,img=None):
         }
     url="https://api.twitter.com/1.1/statuses/update.json"
     sess.post(url,params=params)
-
 

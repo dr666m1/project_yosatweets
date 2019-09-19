@@ -13,11 +13,15 @@ except NameError as e:
 with common.make_conn("./../data/last_week.db") as conn:
     df=pd.read_sql_query("select * from tweets;",conn)
 
-t=Tokenizer()
+t=Tokenizer("./../dic/user_dic.csv",udic_type="simpledic",udic_enc="utf8")
 word_freq={}
+ignore_words=common.read_ignore_dic()
 for txt in df["text"]:
-    for token in t.tokenize(txt):
-        if token.part_of_speech.split(",")[0] in ["名詞","形容詞","動詞"]:
+    converted_txt=common.apply_convert_dic(txt)
+    for token in t.tokenize(converted_txt):
+        if token.base_form in ignore_words:
+            continue
+        elif token.part_of_speech.split(",")[0] in ["名詞","形容詞","動詞"]:
             if token.base_form in word_freq.keys():
                 word_freq[token.base_form]+=1
             else:
@@ -36,7 +40,8 @@ for txt in df["text"]:
 #                word_freq[word]=1
 #        node=node.next
 
-wc=WordCloud(font_path="./../font/YuGothB.ttc")
+wc=WordCloud(font_path="./../font/YuGothB.ttc",width=1200,height=600)
 wc.generate_from_frequencies(word_freq)
 wc.to_file("./../plot/wordcloud.png")
 
+common.tweet("先週の話題","./../plot/wordcloud.png")

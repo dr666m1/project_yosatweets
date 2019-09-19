@@ -3,6 +3,7 @@
 /data/
 /plot/
 /font/
+/log/
 /dic/user_dic/
 config.py
 __pycache__
