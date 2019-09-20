@@ -33,8 +33,7 @@ def search_tweets(query,since_id):
     res=sess.get(url,params=params)
     data_json=json.loads(res.text)
     n=len(data_json["statuses"])
-    if n==100:
-        print(str(n)+" tweets were found!")
+    print(str(n)+" tweets were found!")
 
     data_df=pd.DataFrame({
         "created_at":[data_json["statuses"][i]["created_at"] for i in range(n)],
