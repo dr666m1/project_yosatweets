@@ -34,8 +34,8 @@ def search_tweets(query,since_id):
     data_json=json.loads(res.text)
     n=len(data_json["statuses"])
     if n==100:
-        pass
-        #そのうち警告が出るようにしたい
+        print(str(n)+" tweets were found!")
+
     data_df=pd.DataFrame({
         "created_at":[data_json["statuses"][i]["created_at"] for i in range(n)],
         "id":[data_json["statuses"][i]["id"] for i in range(n)],

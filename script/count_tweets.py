@@ -24,6 +24,13 @@ trend_df["date"]=pd.to_datetime(trend_df["date"])
 trend_df.plot.line(x="date",y="count")
 plt.savefig("./../plot/trend.png")
 
+latest2=trend_df.sort_values(by=["date"],ascending=False).tail(2)["count"].values
+cnt=latest2[-1]
+try:
+    diff=latest2[-1]-latest2[-2]
+except IndexError as e:
+    diff=0
+
 #===== tweet =====
-common.tweet("今週の #よさこい のツイート数はxx\n先週との差分は+-xx\n\n#よさこい","./../plot/chart.png")
+common.tweet("【定期】\n先週の #よさこい のツイート数：{:,d}\n前週比増減：{:+,d}\n\n#よさこい","./../plot/chart.png")
 
