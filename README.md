@@ -9,6 +9,10 @@ mecab-python3のインストールだけでも動くが、辞書のコンパイ�
 sudo apt install mecab libmecab-dev mecab-ipadic-utf8
 ```
 
+## フォントの準備
+wordcloudが豆腐になるのを避けるため、直接フォントファイルを指定している。
+Windowsでは`C:\Windows\Fonts\`以下にいろいろある
+
 ## 辞書の整理
 デフォルトのipadicを使っているが、別途自分で2種類の辞書を整備している。
 
