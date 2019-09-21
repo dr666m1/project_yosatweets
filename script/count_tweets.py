@@ -39,5 +39,5 @@ except IndexError as e:
     diff=0
 
 #===== tweet =====
-common.tweet("【定期】\n先週の #よさこい のツイート数：{:,d}\n前週比増減：{:+,d}\n\n#よさこい","./../plot/trend.png")
+common.tweet("【定期】\n先週の #よさこい のツイート数：{:,d}\n前週比増減：{:+,d}\n\n#よさこい".format(cnt,diff),"./../plot/trend.png")
 
