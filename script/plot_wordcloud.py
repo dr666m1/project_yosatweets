@@ -13,6 +13,8 @@ except NameError as e:
 with common.make_conn("./../data/last_week.db") as conn:
     df=pd.read_sql_query("select * from tweets;",conn)
 
+#word_freq={}
+#ignore_words=common.read_ignore_dic()
 #t=Tokenizer("./../dic/user_dic.csv",udic_type="simpledic",udic_enc="utf8")
 #for txt in df["text"]:
 #    converted_txt=common.apply_convert_dic(txt)
@@ -27,9 +29,10 @@ with common.make_conn("./../data/last_week.db") as conn:
 
 word_freq={}
 ignore_words=common.read_ignore_dic()
-chasen=MeCab.Tagger("-Ochasen")
+chasen=MeCab.Tagger("-Ochasen -u ./../dic/user_dic.dic")
 for txt in df["text"]:
-    node=chasen.parseToNode(txt)
+    converted_txt=common.apply_convert_dic(txt)
+    node=chasen.parseToNode(converted_txt)
     while node is not None:
         word=node.feature.split(",")[6]
         if word in ignore_words:
