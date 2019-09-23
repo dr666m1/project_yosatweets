@@ -5,5 +5,6 @@
 /font/
 /log/
 /dic/user_dic/
+/script/data_chk.py
 config.py
 __pycache__
