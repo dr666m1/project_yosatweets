@@ -49,4 +49,4 @@ wc=WordCloud(font_path="./../font/YuGothB.ttc",width=1200,height=800)
 wc.generate_from_frequencies(word_freq)
 wc.to_file("./../plot/wordcloud.png")
 
-common.tweet("【定期】先週の話題\n\n#よさこい","./../plot/wordcloud.png")
+common.tweet("【定期】\n先週の話題 #よさこい","./../plot/wordcloud.png")
