@@ -4,7 +4,7 @@
 /plot/
 /font/
 /log/
-/dic/user_dic/
+/dic/user_dic.dic/
 /script/data_chk.py
 config.py
 __pycache__

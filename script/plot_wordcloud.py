@@ -45,7 +45,8 @@ for txt in df["text"]:
             word_freq[word]=1
         node=node.next
 
-wc=WordCloud(font_path="./../font/YuGothB.ttc",width=1200,height=800)
+wc=WordCloud(font_path="./../font/YuGothB.ttc",width=1200,height=800,colormap="Accent")
+#colormap... https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html
 wc.generate_from_frequencies(word_freq)
 wc.to_file("./../plot/wordcloud.png")
 
