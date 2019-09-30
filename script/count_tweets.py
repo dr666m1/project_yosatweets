@@ -31,7 +31,7 @@ trend_df["date"]=pd.to_datetime(trend_df["date"])
 trend_df.plot.line(x="date",y="count")
 plt.savefig("./../plot/trend.png")
 
-latest2=trend_df.sort_values(by=["date"],ascending=False).tail(2)["count"].values
+latest2=trend_df.sort_values(by=["date"],ascending=True).tail(2)["count"].values
 cnt=latest2[-1]
 try:
     diff=latest2[-1]-latest2[-2]
