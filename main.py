@@ -1,6 +1,6 @@
 from requests_oauthlib import OAuth1Session
 import config
-import dic
+import user_dic
 import json
 import pandas as pd
 import datetime
@@ -128,11 +128,11 @@ def main_plot_line_chart(request):
 #===== plot wordcloud =====
 def text2df(content, t):
     content_tmp = content
-    for i, j in dic.replace_words.items():
+    for i, j in user_dic.replace_words.items():
         content_tmp = re.sub(i, j, content_tmp)
     words = [
         x.base_form for x in t.tokenize(content_tmp)
-        if (x.base_form not in dic.ignore_words and x.part_of_speech.split(",")[0] == "名詞")
+        if (x.base_form not in user_dic.ignore_words and x.part_of_speech.split(",")[0] == "名詞")
     ]
     keys, freqs = np.unique(words, return_counts=True)
     return pd.DataFrame({"freq": freqs}, index=keys)
