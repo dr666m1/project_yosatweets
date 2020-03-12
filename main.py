@@ -1,0 +1,165 @@
+from requests_oauthlib import OAuth1Session
+import config
+import dic
+import json
+import pandas as pd
+import datetime
+from google.cloud import bigquery
+from janome.tokenizer import Tokenizer
+import matplotlib.pyplot as plt
+import io
+from wordcloud import WordCloud
+import numpy as np
+import re
+import tempfile
+
+#===== common =====
+bucket_name = "dr666m1_yosatweets"
+
+class MyException(Exception):
+    pass
+
+def make_sess():
+    ck=config.CONSUMER_KEY
+    cs=config.CONSUMER_SECCRET
+    at=config.ACCESS_TOKEN
+    ats=config.ACCESS_TOKEN_SECRET
+    sess=OAuth1Session(ck, cs, at, ats)
+    return sess
+
+def post_tweet(text, img=None, test=False):
+    sess = make_sess()
+    params = {"status": text}
+    if img is not None:
+        url = "https://upload.twitter.com/1.1/media/upload.json"
+        files = {"media": img}
+        res = sess.post(url, files=files)
+        media_id = json.loads(res.text)["media_id"]
+        params["media_ids"] = media_id
+    if test:
+        params["status"] = "@TweetsYosa " + params["status"]
+        params["in_reply_to_status_id"] = 1237771079050878976
+    url = "https://api.twitter.com/1.1/statuses/update.json"
+    sess.post(url, params=params)
+
+#===== insert tweets =====
+url_search = "https://api.twitter.com/1.1/search/tweets.json"
+def search_tweets(query,since_id=0):
+    params = {
+        "q": query,
+        "count": 100,
+        "result_type": "recent",
+        "since_id": since_id
+    }
+    sess = make_sess()
+    res = sess.get(url_search, params=params)
+    data_json = json.loads(res.text)
+    n = len(data_json["statuses"])
+    if n == 0:
+        raise MyException("no tweets")
+    data_df = pd.DataFrame({
+        "created_at": [data_json["statuses"][i]["created_at"] for i in range(n)],
+        "id": [data_json["statuses"][i]["id"] for i in range(n)],
+        "content": [data_json["statuses"][i]["text"] for i in range(n)],
+        "user": [data_json["statuses"][i]["user"]["screen_name"] for i in range(n)]
+    })
+    data_df["created_at"] = pd.to_datetime(data_df["created_at"])
+    return data_df
+
+def insert_tweets(hash_tag):
+    client = bigquery.Client()
+    # search latest tweets
+    query = "select max(id) from `{}`".format(config.table_contents)
+    latest_id = client.query(query).result().to_dataframe().iloc[0, 0]
+    if latest_id is None: latest_id = 0
+    # insert to bq
+    df = search_tweets(hash_tag, latest_id)
+    table = client.get_table(config.table_contents)
+    job = client.load_table_from_dataframe(df, config.table_contents)
+    job.result()
+
+def main_insert_tweets(request):
+    insert_tweets("#よさこい -filter:retweets")
+
+#===== count tweets =====
+def count_tweets(today=datetime.datetime.now()):
+    client = bigquery.Client()
+    start_yyyymmdd = (today - datetime.timedelta(days=today.weekday() + 7)).strftime("%Y-%m-%d")
+    end_yyyymmdd = (today - datetime.timedelta(days=today.weekday() + 1)).strftime("%Y-%m-%d")
+    query = """
+        select count(*)
+        from `{}`
+        where date(created_at) between '{}' and '{}'
+    """.format(config.table_contents, start_yyyymmdd, end_yyyymmdd)
+    res_count = client.query(query).result().to_dataframe().iloc[0, 0]
+    job = client.load_table_from_json(
+        [{"created_at": start_yyyymmdd, "n": int(res_count)}],
+        config.table_counts
+    )
+    job.result()
+
+def main_count_tweets(request):
+    count_tweets()
+
+#===== plot tweets =====
+def plot_line_chart():
+    # extract data
+    client = bigquery.Client()
+    query = """
+        select *
+        from `{}`
+        order by created_at desc
+        limit 100
+    """.format(config.table_counts)
+    df = client.query(query).result().to_dataframe()
+    # prepare message
+    cnt = df.iloc[0, 1]
+    diff = cnt - df.iloc[1, 1]
+    msg = "【定期】\n先週の #よさこい のツイート数：{:,d}\n前週比増減：{:+,d}".format(cnt,diff)
+    # prepare image
+    df.plot.line(x="created_at", y="n")
+    with io.BytesIO() as img:
+        plt.savefig(img, format="png")
+        post_tweet(text=msg, img=img.getvalue(), test=True)
+
+def main_plot_line_chart(request):
+    plot_line_chart()
+
+#===== plot wordcloud =====
+def text2df(content, t):
+    content_tmp = content
+    for i, j in dic.replace_words.items():
+        content_tmp = re.sub(i, j, content_tmp)
+    words = [
+        x.base_form for x in t.tokenize(content_tmp)
+        if (x.base_form not in dic.ignore_words and x.part_of_speech.split(",")[0] == "名詞")
+    ]
+    keys, freqs = np.unique(words, return_counts=True)
+    return pd.DataFrame({"freq": freqs}, index=keys)
+
+def plot_wordcloud(today=datetime.datetime.now()):
+    client = bigquery.Client()
+    start_yyyymmdd = (today - datetime.timedelta(days=today.weekday() + 7)).strftime("%Y-%m-%d")
+    end_yyyymmdd = (today - datetime.timedelta(days=today.weekday() + 1)).strftime("%Y-%m-%d")
+    query = """
+        select *
+        from `{}`
+        where date(created_at) between '{}' and '{}'
+    """.format(config.table_contents, start_yyyymmdd, end_yyyymmdd)
+    df = client.query(query).result().to_dataframe()
+    t = Tokenizer("./user_dic.csv", udic_type="simpledic", udic_enc="utf8")
+    cnt_df = pd.concat([text2df(x, t) for x in df["content"]]).groupby(level=0).sum()
+    cnt_dic = {x[0]: x[1] for x in cnt_df.itertuples()}
+    wc = WordCloud(font_path="./meiryo.ttc",width=1200,height=800,colormap="Accent")
+    #colormap... https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html
+    wc.generate_from_frequencies(cnt_dic)
+    msg = "【定期】\n先週の話題 #よさこい"
+    with tempfile.TemporaryDirectory() as tmp_dir: # maybe i have to use tempfile
+        tmp_file = tmp_dir + "/tmp.png"
+        wc.to_file(tmp_file)
+        with open(tmp_file, "rb") as img:
+            post_tweet(text=msg, img=img, test=True)
+
+def main_plot_wordcloud(request):
+    plot_wordcloud()
+
