@@ -14,8 +14,6 @@ import re
 import tempfile
 
 #===== common =====
-bucket_name = "dr666m1_yosatweets"
-
 class MyException(Exception):
     pass
 
@@ -27,7 +25,7 @@ def make_sess():
     sess=OAuth1Session(ck, cs, at, ats)
     return sess
 
-def post_tweet(text, img=None, test=False):
+def post_tweet(text, img=None):
     sess = make_sess()
     params = {"status": text}
     if img is not None:
@@ -36,11 +34,8 @@ def post_tweet(text, img=None, test=False):
         res = sess.post(url, files=files)
         media_id = json.loads(res.text)["media_id"]
         params["media_ids"] = media_id
-    if test:
-        params["status"] = "@TweetsYosa " + params["status"]
-        params["in_reply_to_status_id"] = 1237771079050878976
     url = "https://api.twitter.com/1.1/statuses/update.json"
-    sess.post(url, params=params)
+    # sess.post(url, params=params)
 
 #===== insert tweets =====
 url_search = "https://api.twitter.com/1.1/search/tweets.json"
@@ -73,10 +68,13 @@ def insert_tweets(hash_tag):
     latest_id = client.query(query).result().to_dataframe().iloc[0, 0]
     if latest_id is None: latest_id = 0
     # insert to bq
-    df = search_tweets(hash_tag, latest_id)
-    table = client.get_table(config.table_contents)
-    job = client.load_table_from_dataframe(df, config.table_contents)
-    job.result()
+    try:
+        df = search_tweets(hash_tag, latest_id)
+        table = client.get_table(config.table_contents)
+        job = client.load_table_from_dataframe(df, config.table_contents)
+        job.result()
+    except MyException as e:
+        print(e)
 
 def main_insert_tweets(request):
     insert_tweets("#よさこい -filter:retweets")
@@ -120,7 +118,7 @@ def plot_line_chart():
     df.plot.line(x="created_at", y="n")
     with io.BytesIO() as img:
         plt.savefig(img, format="png")
-        post_tweet(text=msg, img=img.getvalue(), test=True)
+        post_tweet(text=msg, img=img.getvalue())
 
 def main_plot_line_chart(request):
     plot_line_chart()
@@ -158,7 +156,7 @@ def plot_wordcloud(today=datetime.datetime.now()):
         tmp_file = tmp_dir + "/tmp.png"
         wc.to_file(tmp_file)
         with open(tmp_file, "rb") as img:
-            post_tweet(text=msg, img=img, test=True)
+            post_tweet(text=msg, img=img)
 
 def main_plot_wordcloud(request):
     plot_wordcloud()
