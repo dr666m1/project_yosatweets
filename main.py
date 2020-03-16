@@ -85,7 +85,7 @@ def count_tweets(today=datetime.datetime.now()):
     start_yyyymmdd = (today - datetime.timedelta(days=today.weekday() + 7)).strftime("%Y-%m-%d")
     end_yyyymmdd = (today - datetime.timedelta(days=today.weekday() + 1)).strftime("%Y-%m-%d")
     query = """
-        select count(*)
+        select count(distinct *)
         from `{}`
         where date(created_at) between '{}' and '{}'
     """.format(config.table_contents, start_yyyymmdd, end_yyyymmdd)
