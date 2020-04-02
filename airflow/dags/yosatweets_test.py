@@ -10,7 +10,7 @@ dag = DAG(
 
 task1 = BashOperator(
     task_id='yosatweets_test',
-    bash_command="date > /home/airflow/tmp/yosatweets_test.log"
+    bash_command="date > /home/airflow/tmp/yosatweets_test.log",
     dag=dag,
 )
 

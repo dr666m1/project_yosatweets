@@ -2,11 +2,11 @@
 Description=Airflow scheduler daemon
 
 [Service]
-EnvironmentFile=/home/airflow/airflow.env
+EnvironmentFile=/home/airflow/airflow/airflow.env
 User=airflow
 Group=airflow
 Type=simple
-ExecStart=/home/airflow/.local/bin/airflow
+ExecStart=/home/airflow/.local/bin/airflow scheduler
 Restart=always
 RestartSec=5s
 
