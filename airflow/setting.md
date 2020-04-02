@@ -13,12 +13,12 @@ pip3 install --upgrade apache-airflow requests
 # githubからpull
 git clone https://github.com/dr666m1/project_yosatweets.git $HOME/yosatweets
 # 個人的な環境変数の設定
-echo "AIRFLOW_HOME=/home/airflow/airflow" >> $HOME/.bashrc
-echo "AIRFLOW__CORE__LOAD_EXAMPLES=False" >> $HOME/.bashrc
-echo "AIRFLOW__SCHEDULER__CATCHUP_BY_DEFAULT=False" >> $HOME/.bashrc
-echo "SANDBOX_TOKEN=xxxxx" >> $HOME/.bashrc
-echo "GCP_PROJECT=xxxxx" >> $HOME/.bashrc
-echo "PYTHONPATH=/home/airflow/yosatweets/airflow/package" >> $HOME/.bashrc
+echo "export AIRFLOW_HOME=/home/airflow/airflow" >> $HOME/.bashrc
+echo "export AIRFLOW__CORE__LOAD_EXAMPLES=False" >> $HOME/.bashrc
+echo "export AIRFLOW__SCHEDULER__CATCHUP_BY_DEFAULT=False" >> $HOME/.bashrc
+echo "export SANDBOX_TOKEN=xxxxx" >> $HOME/.bashrc
+echo "export GCP_PROJECT=xxxxx" >> $HOME/.bashrc
+echo "export PYTHONPATH=/home/airflow/yosatweets/airflow/package" >> $HOME/.bashrc
 ```
 フォントファイル（ttc）は自力で`$HOME/yosatweets/functions`以下に追加（著作権が心配でgithubにあげていないため）。
 `$HOME/yosatweets/airflow/systemd/airflow.env`の`xxxxx`部分は環境に合わせて変更が必要。
