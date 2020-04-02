@@ -20,7 +20,7 @@ task1 = PythonOperator(
 
 task2 = PythonOperator(
     task_id='yosatweets_plot_line_chart',
-    python_callable=yosatweets.common.exec_functions,
+    python_callable=exec_functions,
     provide_context=True,
     op_kwargs={"url": "https://us-central1-{}.cloudfunctions.net/yosatweets_plot_line_chart".format(os.environ["GCP_PROJECT"])},
     dag=dag,
