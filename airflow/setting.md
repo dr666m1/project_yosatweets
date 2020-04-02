@@ -17,6 +17,9 @@ airflow initdb
 mkdir -p $HOME/airflow/dags
 git clone https://github.com/dr666m1/project_yosatweets.git $HOME/yosatweets
 ln -s $HOME/yosatweets/airflow/dags $HOME/airflow/dags/yosatweets
+```
+`$HOME/yosatweets/airflow/systemd/airflow.env`を確認し、`xxxxx`部分を入力。
+```
 cat $HOME/yosatweets/airflow/systemd/airflow.env >> $HOME/airflow/airflow/airflow.env
 ln -s $HOME/yosatweets/airflow/systemd/airflow-scheduler.service /etc/systemd/system/airflow-scheduler.service
 sudo systemctl enable airflow
@@ -26,11 +29,3 @@ airflow unpause yosatweets_monday_version-x.x
 airflow unpause yosatweets_wednesday_version-x.x
 ```
 
-## memo
-- 環境変数はファイルで設定したい
-echo "export AIRFLOW_HOME=$HOME/airflow" >> $HOME/.bashrc
-echo "export AIRFLOW__CORE__LOAD_EXAMPLES=False" >> $HOME/.bashrc
-echo "export AIRFLOW__SCHEDULER__CATCHUP_BY_DEFAULT=False" >> $HOME/.bashrc
-echo "export SANDBOX_TOKEN=xxxxxxxxxx" >> $HOME/.bashrc
-echo "export GCP_PROJECT=xxxxxxxxxx" >> $HOME/.bashrc
-echo "export PYTHONPATH=$HOME/yosatweets/airflow/yosatweets" >> $HOME/.bashrc
