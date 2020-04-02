@@ -9,17 +9,21 @@
 sudo apt update
 sudo apt -y install python3.7 python3-pip
 pip3 install --upgrade apache-airflow requests
-git clone https://github.com/dr666m1/project_yosatweets.git $HOME/yosatweets
 ```
-シェルを再起動して以下を実行。
-
+フォントファイル（ttc）は手動で`$HOME/yosatweets/functions`以下に移動する（著作権が心配でgithubにあげていないため）。
+その後シェルを再起動し以下を実行。
 ```
 airflow initdb
-cp $HOME/yosatweets/airflow/dags/* $HOME/airflow/dags
+mkdir -p $HOME/airflow/dags
+git clone https://github.com/dr666m1/project_yosatweets.git $HOME/yosatweets
+ln -s $HOME/yosatweets/airflow/dags $HOME/airflow/dags/yosatweets
+cat $HOME/yosatweets/airflow/systemd/airflow.env >> $HOME/airflow/airflow/airflow.env
+ln -s $HOME/yosatweets/airflow/systemd/airflow-scheduler.service /etc/systemd/system/airflow-scheduler.service
+sudo systemctl enable airflow
+audo systemctl start airflow
 airflow unpause yosatweets_hourly_version-x.x
 airflow unpause yosatweets_monday_version-x.x
 airflow unpause yosatweets_wednesday_version-x.x
-airflow scheduler # systemd? nohup?
 ```
 
 ## memo
