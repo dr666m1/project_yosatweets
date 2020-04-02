@@ -28,7 +28,7 @@ def send_line_msg(msg):
     except KeyError as e:
         print(e)
 
-default_args = {
+common_args = {
     'owner': os.environ.get("USER", "unknown"),
     'depends_on_past': False,
     #'start_date': days_ago(7),

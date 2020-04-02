@@ -4,7 +4,7 @@ from yosatweets.common import *
 
 dag = DAG(
     'yosatweets_test_v0.0',
-    default_args=yosatweets.common.default_args,
+    default_args=common_args,
     description='test',
     start_date=days_ago(1),
     schedule_interval="00 *  *  *  *",
