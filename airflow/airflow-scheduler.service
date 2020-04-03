@@ -2,7 +2,6 @@
 Description=Airflow scheduler daemon
 
 [Service]
-EnvironmentFile=/home/airflow/airflow/airflow.env
 User=airflow
 Group=airflow
 Type=simple
