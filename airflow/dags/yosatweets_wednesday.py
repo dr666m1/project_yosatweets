@@ -1,7 +1,7 @@
 import sys
 sys.path.append("/home/airflow/yosatweets/airflow/package")
-from yosatweets_common import *
-from yosatweets_config import *
+from package.yosatweets_common import *
+from package.yosatweets_config import *
 
 dag = DAG(
     'yosatweets_wednesday_v0.0',
@@ -16,7 +16,7 @@ task1 = PythonOperator(
     python_callable=exec_functions,
     provide_context=True,
     op_kwargs={
-        "url": "https://us-central1-{}.cloudfunctions.net/yosatweets_plot_wordcloud".format(gce_project),
+        "url": "https://us-central1-{}.cloudfunctions.net/yosatweets_plot_wordcloud".format(gcp_project),
         "token": sandbox_token
     },
     dag=dag,

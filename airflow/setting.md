@@ -18,10 +18,10 @@ git clone https://github.com/dr666m1/project_yosatweets.git $HOME/yosatweets
 完了したら一度シェルを再起動。
 ```
 airflow initdb
-mv $HOME/yosatweets/airflow/airflow.cfg $HOME/airflow/airflow.cfg
+cp $HOME/yosatweets/airflow/airflow.cfg $HOME/airflow/airflow.cfg
 mkdir -p $HOME/airflow/dags
 ln -s $HOME/yosatweets/airflow/dags $HOME/airflow/dags/yosatweets
-sudo ln -s $HOME/yosatweets/airflow/systemd/airflow-scheduler.service /etc/systemd/system/airflow-scheduler.service
+sudo ln -s $HOME/yosatweets/airflow/airflow-scheduler.service /etc/systemd/system/airflow-scheduler.service
 sudo systemctl enable airflow-scheduler
 sudo systemctl start airflow-scheduler
 ```
