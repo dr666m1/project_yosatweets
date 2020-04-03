@@ -1,6 +1,6 @@
 import sys
 sys.path.append("/home/airflow/yosatweets/airflow/package")
-from yosatweets.common import *
+from yosatweets_common import *
 
 dag = DAG(
     'yosatweets_wednesday_v0.0',
