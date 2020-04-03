@@ -35,5 +35,3 @@ common_args = {
     'retries': 2,
     'retry_delay': timedelta(minutes=5),
 }
-
-version = "0.0"

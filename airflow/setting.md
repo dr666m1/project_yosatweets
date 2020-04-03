@@ -8,13 +8,13 @@
 ```
 # installまで
 sudo apt update
-sudo apt -y install python3.7 python3-pip
+sudo apt -y install python3.7 python3-pip zip
 pip3 install --upgrade apache-airflow requests
 
 # githubからpull
 git clone https://github.com/dr666m1/project_yosatweets.git $HOME/yosatweets
 ```
-`$HOME/yosatweets/airflow/dags/yosatweets_config.py`で`sandbox_token`と`gcp_project`を設定すること。
+`$HOME/yosatweets/airflow/dags/package/yosatweets_config.py`で`sandbox_token`と`gcp_project`を設定すること。
 完了したら一度シェルを再起動。
 ```
 airflow initdb
