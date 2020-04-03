@@ -1,6 +1,7 @@
 import sys
 sys.path.append("/home/airflow/yosatweets/airflow/package")
 from yosatweets_common import *
+from yosatweets_config import *
 
 dag = DAG(
     'yosatweets_monday_v0.0',
@@ -22,7 +23,10 @@ task2 = PythonOperator(
     task_id='yosatweets_plot_line_chart',
     python_callable=exec_functions,
     provide_context=True,
-    op_kwargs={"url": "https://us-central1-{}.cloudfunctions.net/yosatweets_plot_line_chart".format(os.environ["GCP_PROJECT"])},
+    op_kwargs={
+        "url": "https://us-central1-{}.cloudfunctions.net/yosatweets_plot_line_chart".format(gce_project),
+        "token": sandbox_token
+    },
     dag=dag,
 )
 

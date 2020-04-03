@@ -1,6 +1,7 @@
 import sys
 sys.path.append("/home/airflow/yosatweets/airflow/package")
 from yosatweets_common import *
+from yosatweets_config import *
 
 dag = DAG(
     'yosatweets_hourly_v0.0',
@@ -14,7 +15,10 @@ task1 = PythonOperator(
     task_id='yosatweets_insert_tweets',
     python_callable=exec_functions,
     provide_context=True,
-    op_kwargs={"url": "https://us-central1-{}.cloudfunctions.net/yosatweets_insert_tweets".format(os.environ["GCP_PROJECT"])},
+    op_kwargs={
+        "url": "https://us-central1-{}.cloudfunctions.net/yosatweets_insert_tweets".format(gce_project),
+        "token": sandbox_token
+    },
     dag=dag,
 )
 

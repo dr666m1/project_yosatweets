@@ -11,17 +11,16 @@ from airflow.utils.dates import days_ago
 import os
 from datetime import timedelta
 
-def exec_functions(url, task, task_instance, **kwargs):
+def exec_functions(url, token, task, task_instance, **kwargs):
     payload = {}
     res = requests.post(url, data=payload)
     if res.status_code//100 != 2:
         msg = "error report\nid: {}\nn-th: {}".format(task.task_id, task_instance.try_number)
-        send_line_msg(msg)
+        send_line_msg(msg, token)
         raise Exception("response status code is not in 200 - 299")
 
-def send_line_msg(msg):
+def send_line_msg(msg, token):
     try:
-        token = os.environ["SANDBOX_TOKEN"]
         url = "https://notify-api.line.me/api/notify"
         payload = {"message": msg}
         headers = {"Authorization": "Bearer {}".format(token)}
