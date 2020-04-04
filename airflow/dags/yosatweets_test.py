@@ -7,12 +7,12 @@ dag = DAG(
     default_args=common_args,
     description='test',
     start_date=days_ago(1),
-    schedule_interval="00 *  *  *  *",
+    schedule_interval="20 *  *  *  *",
 )
 
 task1 = BashOperator(
     task_id='yosatweets_test',
-    bash_command="date > /home/airflow/tmp/yosatweets_test.log",
+    bash_command="date > /home/airflow/yosatweets_test.log",
     dag=dag,
 )
 
