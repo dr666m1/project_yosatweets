@@ -4,7 +4,7 @@
 - ユーザー名はairflow
 
 ## 導入
-以下を実行。pythonは3.5.3以降が必須（https://github.com/pydata/xarray/issues/2866）。
+以下を実行。pythonは3.5.3以降が必須。
 ```
 # installまで
 sudo apt update
@@ -16,6 +16,7 @@ git clone https://github.com/dr666m1/project_yosatweets.git $HOME/yosatweets
 ```
 `$HOME/yosatweets/airflow/dags/package`の下に`yosatweets_config.py`を作成
 ```yosatweets_config.py
+# yosatweets_config.py
 sandbox_token = "xxxxx"
 gcp_project = "xxxxx"
 ```
