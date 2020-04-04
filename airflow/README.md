@@ -11,7 +11,6 @@ sudo apt update
 sudo apt -y install python3.7 python3-pip zip
 pip3 install --upgrade apache-airflow requests
 
-
 # githubからpull
 git clone https://github.com/dr666m1/project_yosatweets.git $HOME/yosatweets
 ```
@@ -21,7 +20,7 @@ sandbox_token = "xxxxx"
 gcp_project = "xxxxx"
 ```
 
-完了したら一度シェルを再起動。
+ここまで一度シェルを再起動した後、以下を実行。
 ```
 airflow initdb
 cp $HOME/yosatweets/airflow/airflow.cfg $HOME/airflow/airflow.cfg
