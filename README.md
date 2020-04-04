@@ -41,9 +41,7 @@
 
 - Cloud Functions
 - Big Query
-- Cloud Scheduler
-
-将来的にはCloud SchedulerをやめてApache Airflowに移行する予定。
+- Cloud Storage
+- Compute Engine (Apache Airflow)
 
 コードは自由にコピペしてください。特に連絡は不要ですが、Twitterで一声かけてもらえると喜びます。
-

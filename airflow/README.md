@@ -21,7 +21,7 @@ sandbox_token = "xxxxx"
 gcp_project = "xxxxx"
 ```
 
-ここまで一度シェルを再起動した後、以下を実行。
+いったんシェルを再起動し、以下を実行。
 ```
 airflow initdb
 cp $HOME/yosatweets/airflow/airflow.cfg $HOME/airflow/airflow.cfg
