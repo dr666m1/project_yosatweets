@@ -15,9 +15,10 @@ pip3 install --upgrade apache-airflow requests
 # githubからpull
 git clone https://github.com/dr666m1/project_yosatweets.git $HOME/yosatweets
 ```
-`$HOME/yosatweets/airflow/dags/package/yosatweets_config.py`で`sandbox_token`と`gcp_project`を設定する。
-```
-
+`$HOME/yosatweets/airflow/dags/package`の下に`yosatweets_config.py`を作成
+```yosatweets_config.py
+sandbox_token = "xxxxx"
+gcp_project = "xxxxx"
 ```
 
 完了したら一度シェルを再起動。
