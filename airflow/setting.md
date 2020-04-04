@@ -14,7 +14,7 @@ pip3 install --upgrade apache-airflow requests
 # githubからpull
 git clone https://github.com/dr666m1/project_yosatweets.git $HOME/yosatweets
 ```
-`$HOME/yosatweets/airflow/dags/package/yosatweets_config.py`で`sandbox_token`と`gcp_project`を設定すること。
+`$HOME/yosatweets/airflow/dags/package/yosatweets_config.py`で`sandbox_token`と`gcp_project`を設定する。
 完了したら一度シェルを再起動。
 ```
 airflow initdb
@@ -22,7 +22,6 @@ cp $HOME/yosatweets/airflow/airflow.cfg $HOME/airflow/airflow.cfg
 mkdir -p $HOME/airflow/dags
 cd $HOME/yosatweets/airflow/dags
 zip -r $HOME/airflow/dags/yosatweets *
-ln -s $HOME/yosatweets/airflow/dags $HOME/airflow/dags/yosatweets
 sudo ln -s $HOME/yosatweets/airflow/airflow-scheduler.service /etc/systemd/system/airflow-scheduler.service
 sudo systemctl enable airflow-scheduler
 sudo systemctl start airflow-scheduler
