@@ -11,6 +11,12 @@ sudo apt update
 sudo apt -y install python3.7 python3-pip zip
 pip3 install --upgrade apache-airflow requests
 
+#
+sudo yum install -y https://centos7.iuscommunity.org/ius-release.rpm
+sudo yum install -y python36u python36u-pip zip
+pip3 install --upgrade apache-airflow requests
+
+
 # githubからpull
 git clone https://github.com/dr666m1/project_yosatweets.git $HOME/yosatweets
 ```
