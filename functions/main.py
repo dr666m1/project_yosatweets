@@ -37,7 +37,7 @@ def post_tweet(text, img=None):
         media_id = json.loads(res.text)["media_id"]
         params["media_ids"] = media_id
     url = "https://api.twitter.com/1.1/statuses/update.json"
-    # sess.post(url, params=params)
+    sess.post(url, params=params)
 
 #===== insert tweets =====
 url_search = "https://api.twitter.com/1.1/search/tweets.json"
