@@ -63,7 +63,7 @@ def search_tweets(query,since_id=0):
     data_df["created_at"] = pd.to_datetime(data_df["created_at"])
     return data_df
 
-def insert_tweets(hash_tag):
+def insert_tweets(keyword):
     client = bigquery.Client()
     # search latest tweets
     query = "select max(id) from `{}`".format(config.table_contents)
@@ -71,7 +71,7 @@ def insert_tweets(hash_tag):
     if latest_id is None: latest_id = 0
     # insert to bq
     try:
-        df = search_tweets(hash_tag, latest_id)
+        df = search_tweets(keyword, latest_id)
         table = client.get_table(config.table_contents)
         job = client.load_table_from_dataframe(df, config.table_contents)
         job.result()
@@ -79,7 +79,7 @@ def insert_tweets(hash_tag):
         print(e)
 
 def main_insert_tweets(request):
-    insert_tweets("#よさこい -filter:retweets")
+    insert_tweets('"よさこい" -filter:retweets')
 
 #===== count tweets =====
 def count_tweets(today=datetime.datetime.now()):
@@ -89,7 +89,9 @@ def count_tweets(today=datetime.datetime.now()):
     query = """
         select count(distinct id)
         from `{}`
-        where date(created_at) between '{}' and '{}'
+        where
+            date(created_at) between '{}' and '{}'
+            and content like '%#よさこい%'
     """.format(config.table_contents, start_yyyymmdd, end_yyyymmdd)
     res_count = client.query(query).result().to_dataframe().iloc[0, 0]
     job = client.load_table_from_json(
