@@ -14,6 +14,7 @@ import numpy as np
 import re
 import tempfile
 import altair as alt
+from time import sleep
 
 #===== common =====
 class MyException(Exception):
@@ -40,38 +41,51 @@ def post_tweet(text, img=None):
     sess.post(url, params=params)
 
 #===== insert tweets =====
-url_search = "https://api.twitter.com/1.1/search/tweets.json"
-def search_tweets(query,since_id=0):
+url_search = "https://api.twitter.com/1.1/tweets/search/30day/dev.json"
+# https://developer.twitter.com/en/docs/tweets/search/api-reference/premium-search
+def search_tweets(sess, query, fromDate, toDate, next_token=None):
     params = {
-        "q": query,
-        "count": 100,
-        "result_type": "recent",
-        "since_id": since_id
+        "query": query,
+        "maxResults": 100,
+        "fromDate": fromDate, # UTC
+        "toDate": toDate
     }
-    sess = make_sess()
+    if next_token is not None:
+        params["next"] = next_token
     res = sess.get(url_search, params=params)
     data_json = json.loads(res.text)
-    n = len(data_json["statuses"])
+    print(data_json)
+    n = len(data_json["results"])
     if n == 0:
         raise MyException("no tweets")
+    idx = [i for i, j in enumerate(data_json["results"]) if "retweeted_status" not in j]
+    # idx = [] is acceptable
+    # is:retweet operator is not available
     data_df = pd.DataFrame({
-        "created_at": [data_json["statuses"][i]["created_at"] for i in range(n)],
-        "id": [data_json["statuses"][i]["id"] for i in range(n)],
-        "content": [data_json["statuses"][i]["text"] for i in range(n)],
-        "user": [data_json["statuses"][i]["user"]["screen_name"] for i in range(n)]
+        "created_at": [data_json["results"][i]["created_at"] for i in idx],
+        "id": [data_json["results"][i]["id"] for i in idx],
+        "content": [data_json["results"][i].get("extended_tweet", {}).get("full_text") or data_json["results"][i]["text"] for i in idx],
+        "user": [data_json["results"][i]["user"]["screen_name"] for i in idx],
     })
     data_df["created_at"] = pd.to_datetime(data_df["created_at"])
-    return data_df
+    if "next" in data_json:
+        sleep(0.5)
+        data_df_all = pd.concat(
+            [data_df, search_tweets(sess, query, fromDate, toDate, next_token=data_json["next"])],
+            ignore_index=True
+        )
+    else:
+        data_df_all = data_df
+    return data_df_all
 
-def insert_tweets(keyword):
+def insert_tweets(keyword, fromDate, toDate):
+    sess = make_sess()
     client = bigquery.Client()
     # search latest tweets
     query = "select max(id) from `{}`".format(config.table_contents)
-    latest_id = client.query(query).result().to_dataframe().iloc[0, 0]
-    if latest_id is None: latest_id = 0
     # insert to bq
     try:
-        df = search_tweets(keyword, latest_id)
+        df = search_tweets(sess, keyword, fromDate, toDate)
         table = client.get_table(config.table_contents)
         job = client.load_table_from_dataframe(df, config.table_contents)
         job.result()
@@ -79,7 +93,9 @@ def insert_tweets(keyword):
         print(e)
 
 def main_insert_tweets(request):
-    insert_tweets('"よさこい" -filter:retweets')
+    fromDate = (datetime.datetime.now() - datetime.timedelta(hours=1)).strftime("%Y%m%d%H") + "00"
+    toDate = datetime.datetime.now().strftime("%Y%m%d%H") + "00"
+    insert_tweets('"よさこい" OR #よさこい', fromDate, toDate)
 
 #===== count tweets =====
 def count_tweets(today=datetime.datetime.now()):
@@ -131,7 +147,8 @@ def plot_line_chart():
     # prepare message
     cnt = df_recent.iloc[0, 1]
     diff = cnt - df_recent.iloc[1, 1]
-    msg = "【定期】\n先週の #よさこい のツイート数：{:,d}\n前週比増減：{:+,d}\n{}".format(cnt, diff, url)
+    #msg = "【定期】\n先週の #よさこい のツイート数：{:,d}\n前週比増減：{:+,d}\n{}".format(cnt, diff, url)
+    msg = "【定期】\n先週の #よさこい のツイート数：{:,d}\n前週比増減：{:+,d}".format(cnt, diff)
     # plot (recent)
     df_recent.plot.line(x="created_at", y="n")
     # tweets
@@ -159,7 +176,7 @@ def plot_wordcloud(today=datetime.datetime.now()):
     start_yyyymmdd = (today - datetime.timedelta(days=today.weekday() + 7)).strftime("%Y-%m-%d")
     end_yyyymmdd = (today - datetime.timedelta(days=today.weekday() + 1)).strftime("%Y-%m-%d")
     query = """
-        select *
+        select distinct *
         from `{}`
         where date(created_at) between '{}' and '{}'
     """.format(config.table_contents, start_yyyymmdd, end_yyyymmdd)
