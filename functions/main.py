@@ -41,61 +41,47 @@ def post_tweet(text, img=None):
     sess.post(url, params=params)
 
 #===== insert tweets =====
-url_search = "https://api.twitter.com/1.1/tweets/search/30day/dev.json"
-# https://developer.twitter.com/en/docs/tweets/search/api-reference/premium-search
-def search_tweets(sess, query, fromDate, toDate, next_token=None):
+url_search = "https://api.twitter.com/1.1/search/tweets.json"
+def search_tweets(sess, query,since_id=0):
     params = {
-        "query": query,
-        "maxResults": 100,
-        "fromDate": fromDate, # UTC
-        "toDate": toDate
+        "q": query,
+        "count": 100,
+        "result_type": "recent",
+        "since_id": since_id
     }
-    if next_token is not None:
-        params["next"] = next_token
     res = sess.get(url_search, params=params)
     data_json = json.loads(res.text)
-    try:
-        n = len(data_json["results"])
-    except KeyError as e:
-        raise MyException("unexpected response... \n{}".format(res.text))
+    n = len(data_json["statuses"])
     if n == 0:
-        print("no tweets")
-        return
-    idx = [i for i, j in enumerate(data_json["results"]) if "retweeted_status" not in j]
-    # idx = [] is acceptable
-    # is:retweet operator is not available
+        raise MyException("no tweets")
     data_df = pd.DataFrame({
-        "created_at": [data_json["results"][i]["created_at"] for i in idx],
-        "id": [data_json["results"][i]["id"] for i in idx],
-        "content": [data_json["results"][i].get("extended_tweet", {}).get("full_text") or data_json["results"][i]["text"] for i in idx],
-        "user": [data_json["results"][i]["user"]["screen_name"] for i in idx],
+        "created_at": [data_json["statuses"][i]["created_at"] for i in range(n)],
+        "id": [data_json["statuses"][i]["id"] for i in range(n)],
+        "content": [data_json["statuses"][i]["text"] for i in range(n)],
+        "user": [data_json["statuses"][i]["user"]["screen_name"] for i in range(n)]
     })
     data_df["created_at"] = pd.to_datetime(data_df["created_at"])
-    if "next" in data_json:
-        sleep(0.5)
-        data_df_all = pd.concat(
-            [data_df, search_tweets(sess, query, fromDate, toDate, next_token=data_json["next"])],
-            ignore_index=True
-        )
-    else:
-        data_df_all = data_df
-    return data_df_all
+    return data_df
 
-def insert_tweets(keyword, fromDate, toDate):
+def insert_tweets(keyword):
     sess = make_sess()
     client = bigquery.Client()
     # search latest tweets
     query = "select max(id) from `{}`".format(config.table_contents)
+    latest_id = client.query(query).result().to_dataframe().iloc[0, 0]
+    if latest_id is None: latest_id = 0
     # insert to bq
-    df = search_tweets(sess, keyword, fromDate, toDate)
-    table = client.get_table(config.table_contents)
-    job = client.load_table_from_dataframe(df, config.table_contents)
-    job.result()
+    try:
+        df = search_tweets(sess, keyword, latest_id)
+        table = client.get_table(config.table_contents)
+        job = client.load_table_from_dataframe(df, config.table_contents)
+        job.result()
+    except MyException as e:
+        print(e)
 
 def main_insert_tweets(request):
-    fromDate = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y%m%d") + "0000"
-    toDate = datetime.date.today().strftime("%Y%m%d") + "0000"
-    insert_tweets('"よさこい" OR #よさこい', fromDate, toDate)
+    insert_tweets('"よさこい" -filter:retweets')
+
 
 #===== count tweets =====
 def count_tweets(today=datetime.datetime.now()):
@@ -105,9 +91,7 @@ def count_tweets(today=datetime.datetime.now()):
     query = """
         select count(distinct id)
         from `{}`
-        where
-            date(created_at) between '{}' and '{}'
-            and content like '%#よさこい%'
+        where date(created_at) between '{}' and '{}'
     """.format(config.table_contents, start_yyyymmdd, end_yyyymmdd)
     res_count = client.query(query).result().to_dataframe().iloc[0, 0]
     job = client.load_table_from_json(
@@ -125,8 +109,9 @@ def plot_line_chart():
     client_bq = bigquery.Client()
     client_gcs = storage.Client()
     query = """
-        select *
+        select distinct *
         from `{}`
+        where '2020-04-20' <= date(created_at)
     """.format(config.table_counts)
     df_all = client_bq.query(query).result().to_dataframe()
     df_recent = df_all.sort_values("created_at", ascending=False).iloc[:50, :]
