@@ -54,10 +54,13 @@ def search_tweets(sess, query, fromDate, toDate, next_token=None):
         params["next"] = next_token
     res = sess.get(url_search, params=params)
     data_json = json.loads(res.text)
-    print(data_json)
-    n = len(data_json["results"])
+    try:
+        n = len(data_json["results"])
+    except KeyError as e:
+        raise MyException("unexpected response... \n{}".format(res.text))
     if n == 0:
-        raise MyException("no tweets")
+        print("no tweets")
+        return
     idx = [i for i, j in enumerate(data_json["results"]) if "retweeted_status" not in j]
     # idx = [] is acceptable
     # is:retweet operator is not available
@@ -84,17 +87,14 @@ def insert_tweets(keyword, fromDate, toDate):
     # search latest tweets
     query = "select max(id) from `{}`".format(config.table_contents)
     # insert to bq
-    try:
-        df = search_tweets(sess, keyword, fromDate, toDate)
-        table = client.get_table(config.table_contents)
-        job = client.load_table_from_dataframe(df, config.table_contents)
-        job.result()
-    except MyException as e:
-        print(e)
+    df = search_tweets(sess, keyword, fromDate, toDate)
+    table = client.get_table(config.table_contents)
+    job = client.load_table_from_dataframe(df, config.table_contents)
+    job.result()
 
 def main_insert_tweets(request):
-    fromDate = (datetime.datetime.now() - datetime.timedelta(hours=1)).strftime("%Y%m%d%H") + "00"
-    toDate = datetime.datetime.now().strftime("%Y%m%d%H") + "00"
+    fromDate = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y%m%d") + "0000"
+    toDate = datetime.date.today().strftime("%Y%m%d") + "0000"
     insert_tweets('"よさこい" OR #よさこい', fromDate, toDate)
 
 #===== count tweets =====
