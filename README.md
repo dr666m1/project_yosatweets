@@ -2,7 +2,7 @@
 <img src="https://user-images.githubusercontent.com/26474260/76974627-c591a200-6974-11ea-95c0-edc3dd7a40a5.jpg" width="300px">
 
 ## コンセプト
-`#よさこい`ツイートの分析を定期的に実行するアカウントです（`@TweetsYosa`）。
+`よさこい`を含むツイートの分析を定期的に実行するアカウントです（`@TweetsYosa`）。
 
 踊り子の皆さん、フォロー＆RTよろしくお願いします！
 
@@ -12,14 +12,14 @@
 
 毎週月曜日に公開。
 
-前の週の月～日曜日の`#よさこい`を含むツイート数です。
+前の週の月～日曜日の`よさこい`を含むツイート数です。
 
 ### ツイート内容の分析
 <img src="https://user-images.githubusercontent.com/26474260/76974163-34bac680-6974-11ea-9f51-39ffd23acd70.png" width="300px">
 
 毎週水曜日に公開。
 
-前の週の月～日曜日の`#よさこい`を含むツイートから話題（というか名詞）を抽出し、ワードクラウドにしています。
+前の週の月～日曜日の`よさこい`を含むツイートから話題（というか名詞）を抽出し、ワードクラウドにしています。
 
 出現回数が多い名詞は大きく、少ない名詞は小さく表示されます。
 
@@ -39,9 +39,10 @@
 ### どうやって実装してるの？
 基本的に[GCP](https://cloud.google.com/?hl=ja)の無料枠で動いています。具体的には以下。
 
-- Cloud Functions
-- Big Query
-- Cloud Storage
-- Compute Engine (Apache Airflow)
+- CloudFunctions
+- BigQuery
+- CloudStorage
+- ComputeEngine (Apache Airflow)
 
+TwitterのAPIはpremium search apiではなくstandard search apiを叩いているので、若干漏れ取得漏れがあるかもしれません。
 コードは自由にコピペしてください。特に連絡は不要ですが、Twitterで声をかけてもらえると喜びます。

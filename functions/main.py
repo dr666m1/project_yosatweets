@@ -111,7 +111,7 @@ def plot_line_chart():
     query = """
         select distinct *
         from `{}`
-        where '2020-04-20' <= date(created_at)
+        where '2020-04-20' <= created_at
     """.format(config.table_counts)
     df_all = client_bq.query(query).result().to_dataframe()
     df_recent = df_all.sort_values("created_at", ascending=False).iloc[:50, :]
