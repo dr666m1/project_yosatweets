@@ -133,7 +133,7 @@ def plot_line_chart():
     cnt = df_recent.iloc[0, 1]
     diff = cnt - df_recent.iloc[1, 1]
     #msg = "【定期】\n先週の #よさこい のツイート数：{:,d}\n前週比増減：{:+,d}\n{}".format(cnt, diff, url)
-    msg = "【定期】\n先週の #よさこい のツイート数：{:,d}\n前週比増減：{:+,d}".format(cnt, diff)
+    msg = "【定期】\n先週の「よさこい」を含むツイート数：{:,d}\n前週比増減：{:+,d}".format(cnt, diff)
     # plot (recent)
     df_recent.plot.line(x="created_at", y="n")
     # tweets
