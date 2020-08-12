@@ -4,7 +4,7 @@ from package.yosatweets_common import *
 from package.yosatweets_config import *
 
 dag = DAG(
-    'yosatweets_monday_v0.0',
+    'yosatweets_monday_v0.1',
     default_args=common_args,
     description='call funtion yosatweets_count_tweets, yosatweets_plot_line_chart',
     start_date=days_ago(7),

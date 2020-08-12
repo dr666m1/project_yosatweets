@@ -4,7 +4,7 @@ from package.yosatweets_common import *
 from package.yosatweets_config import *
 
 dag = DAG(
-    'yosatweets_hourly_v0.0',
+    'yosatweets_hourly_v0.1',
     default_args=common_args,
     description='call funtion yosatweets_insert_tweets',
     start_date=days_ago(1),
