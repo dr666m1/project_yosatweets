@@ -1,3 +1,5 @@
+**このbotは停止しました。今までフォローしてくださっていた方々、ありがとうございました（2020/10/24追記）**
+
 # YosaTweets
 <img src="https://user-images.githubusercontent.com/26474260/76974627-c591a200-6974-11ea-95c0-edc3dd7a40a5.jpg" width="300px">
 
